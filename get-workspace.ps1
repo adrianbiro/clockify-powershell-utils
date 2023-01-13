@@ -4,25 +4,23 @@
 $token = Get-Content .config
 $workspacesJson = curl -s -H "X-Api-Key: $token" https://api.clockify.me/api/v1/workspaces
 $workspaces = ($workspacesJson | ConvertFrom-Json).ID
+$a = foreach ($ws in $workspaces) {
+  #curl -X POST -s -H "X-Api-Key: $token" 'https://api.clockify.me/api/v1/workspaces/$ws/projects' -d  #"
+  #{
+  #    `"name`": `"$name`",
+  #    `"isPublic`": `"false`"
+  #}
+  #"
 
-foreach($ws in $workspaces){
-        #curl -X POST -s -H "X-Api-Key: $token" 'https://api.clockify.me/api/v1/workspaces/$ws/projects' -d  #"
-#{
-#    `"name`": `"$name`",
-#    `"isPublic`": `"false`"
-#}
-#"
-curl -X POST -s -H "X-Api-Key: $token" -H "Content-Type: application/json" "https://reports.api.clockify.me/v1/workspaces/$ws/reports/summary" -d '
-{
-    "dateRangeStart": "2023-01-10",
-    "dateRangeEnd": "2023-01-11",
-    "summaryFilter": {
-    "groups": [
-      "USER",
-      "PROJECT",
-      "TIMEENTRY"
-    ]
+  $jsonstring = '
+{"dateRangeStart": "2023-01-10T00:00:00.000Z",
+  "dateRangeEnd": "2023-01-13T00:00:00.000Z",
+  "detailedFilter": {
+    "page": 1,
+    "pageSize": 50}
 }
 '
+  curl -X POST -s -H "X-Api-Key: $token" -H "Content-Type: application/json" "https://reports.api.clockify.me/v1/workspaces/$ws/reports/detailed" -d $jsonstring
 
 }
+$a

@@ -23,6 +23,27 @@ function get-hours-from-decimal {
     return "{0}:{1}:{2}" -f $hours, $minutes, $seconds
 }
 
-foreach ($i in (Get-ChildItem ".\files\" "*.csv").FullName) {
-    Get-TODO $i
+Function Merge-Hashtables {
+    $Output = @{}
+    ForEach ($Hashtable in ($Input + $Args)) {
+        If ($Hashtable -is [Hashtable]) {
+            ForEach ($Key in $Hashtable.Keys) {$Output.$Key = $Hashtable.$Key}
+        }
+    }
+    $Output
 }
+
+#$hs = 
+foreach ($i in (Get-ChildItem ".\files\" "*.csv").FullName) {
+    Get-TODO $i 
+} #|  Merge-Hashtables
+#$hs 
+# |  Foreach-Object { $sum = @{} } {
+#     [double] $num = $_."Duration (decimal)"
+#     if ($sum[$_.Project]) {
+#         $sum[$_.Project] += $num
+#     }
+#     else {
+#         $sum[$_.Project] = $num
+#     }
+# } $sum
