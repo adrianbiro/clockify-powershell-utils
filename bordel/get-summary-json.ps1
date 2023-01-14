@@ -40,10 +40,12 @@ foreach ($i in $AllReportsjson.GetEnumerator()) {
     }
   } 
 }
-#$sum | ogv; exit 
-$reportPath = ".\summary{0}_{1}.csv" -f $Start, $End
-New-Item -Path $reportPath -ErrorAction "SilentlyContinue" | Out-Null
-#TODO make csv from hash map with custom obj. Like this `$sum | Export-Csv -Path "zmaz.csv"` but invertedlines to columns
+$reportPath = ".\JSONsummary{0}_{1}.csv" -f $Start, $End
+if (Test-Path $reportPath){
+  Remove-Item -Force -Path $reportPath
+}
+New-Item -Force -Path $reportPath -ErrorAction "SilentlyContinue" | Out-Null
+#TODO make csv from hash map with custom obj. Like this `$sum | Export-Csv -Path "zmaz.csv"` but with inverted lines to columns
 '"Project","Hours"' | Add-Content -Path $reportPath
 foreach ($i in $sum.GetEnumerator()) {
   "`"{0}`",`"{1}`"" -f $i.Name, ([math]::Round(($i.Value / 3600), 2)) | Add-Content -Path $reportPath
