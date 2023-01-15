@@ -30,8 +30,8 @@ function get-hours-from-decimal {
   #Decimal hours = hours + minutes/60 + seconds/3600
   #https://calculatordaily.com/decimal-hours-to-hours-minutes-calculator
   param([double] $num)
-  [int] $hours = $num 
-  [int] $minutes = [math]::Floor(($num * 60) % 60)  # Floor to make it consistent with Clockify web app
+  [int] $hours = [math]::Floor($num) # Floor to make it consistent with Clockify web app
+  [int] $minutes = [math]::Floor(($num * 60) % 60)  
   [int] $seconds = [math]::Floor(($num * 3600) % 60)
   return "{0}:{1}:{2}" -f $hours, $minutes, $seconds
 }
@@ -54,8 +54,9 @@ function make-report {
 function main {
   $AllReports = @{}
   foreach ($ws in $wpId.GetEnumerator()) { $AllReports[$ws.Name] = get-report -ws $($ws.Value) }
-  $sum = @{} 
+  #$sum = @{} 
   foreach ($i in $AllReports.GetEnumerator()) {
+    $sum = @{} ####
     $i.Value | ConvertFrom-Csv | Foreach-Object {
       [double] $num = $_."Time (decimal)"
       if ($sum[$_.Project]) {
@@ -64,10 +65,9 @@ function main {
       else {
         $sum[$_.Project] = $num
       }
-    } 
+    }
+    make-report -sum $sum -reportName $i.Name  ###
   }
-
-  make-report -sum $sum
-  #TODO make separate report for each workspace
+  #make-report -sum $sum
 }
 main
