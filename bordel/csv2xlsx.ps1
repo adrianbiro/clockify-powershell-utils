@@ -1,7 +1,7 @@
-###############
+﻿###############
 ##TODO it will add first blank column to new file
 
-
+$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 $workingdir = "reports\*.csv"
 $csv = Get-ChildItem -path $workingdir
 foreach($inputCSV in $csv){
@@ -34,8 +34,8 @@ $query.Refresh()
 $query.Delete()
 
 ### Save & close the Workbook as XLSX. Change the output extension for Excel 2003
-$Workbook.SaveAs($outputXLSX,51)
+$Workbook.SaveAs($outputXLSX,51)  
 $excel.Quit()
 }
 ## To exclude an item, use the '-exclude' parameter (wildcards if needed)
-#remove-item -path $workingdir #-exclude *foobar.csv
+remove-item -path $workingdir -exclude summary*.csv

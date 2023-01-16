@@ -6,11 +6,16 @@ import pathlib
 url = os.path.abspath('')
 
 files = os.listdir(os.path.abspath(''))
-#files = [filepath.absolute() for filepath in pathlib.Path('reports').glob('**/*')]
+outputreportname = ""
 df_dict = {}
 for f in files:
-    if f.endswith('.xlsx'): 
-        excel = pd.ExcelFile(f)
+    if f.endswith('.csv'):
+        outputreportname = re.search(r"(.*)(\d{4}\-\d{2}\-\d{2}_\d{4}\-\d{2}\-\d{2})(.*)",f).group(2) + ".xlsx"
+        read_file = pd.read_csv(f)
+        *csvname, _ = f.split('.') 
+        excelname = ''.join(csvname) + '.xlsx'
+        read_file.to_excel(excelname, index = None, header=True) 
+        excel = pd.ExcelFile(excelname)
         sheets = excel.sheet_names
         for s in sheets:
             df = excel.parse(s)
@@ -18,6 +23,6 @@ for f in files:
             df_name = name
             df_dict[df_name] = df
         
-with pd.ExcelWriter('output.xlsx') as writer:
+with pd.ExcelWriter(outputreportname) as writer:
     for k in df_dict.keys():
         df_dict[k].to_excel(writer, sheet_name = k, index=False)

@@ -1,4 +1,4 @@
-#https://clockify.me/developers-api
+﻿#https://clockify.me/developers-api
 #https://clockify.me/developers-api#tag-Workspace
 #https://clockify.me/developers-api#tag-Reports
 #TODO https://stackoverflow.com/a/62617490 hash tables encoding problem switch to golang on python
@@ -7,6 +7,7 @@ param(
   [string] $End,
   [string] $Token
 )
+$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 if ((-not $Start) -or (-not $End)) {
   "Usage:`n`t{0}  -Start '2023-01-01' -End '2023-01-15'" -f $MyInvocation.MyCommand.Name
   exit 1
@@ -46,9 +47,9 @@ function make-report {
     Remove-Item -Force -Path $reportPath
   }
   New-Item -Path $reportPath -ErrorAction "SilentlyContinue" | Out-Null
-  '"Project","Hours","Decimal"' | Add-Content -Path $reportPath
+  '"Project","Hours","Decimal"' | Add-Content -Encoding utf8BOM -Path $reportPath
   foreach ($i in $sum.GetEnumerator()) {
-    "`"{0}`",`"{1}`",`"{2}`"" -f $i.Name, (get-hours-from-decimal -num $i.Value), $i.Value | Add-Content -Path $reportPath
+    "`"{0}`",`"{1}`",`"{2}`"" -f $i.Name, (get-hours-from-decimal -num $i.Value), $i.Value | Add-Content -Encoding utf8BOM -Path $reportPath
   }
 }
 function main {
