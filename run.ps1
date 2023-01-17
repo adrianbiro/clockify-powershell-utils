@@ -1,12 +1,13 @@
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string] $start,
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string] $End
 )
+Remove-Item ".\reports\" -Recurse -Force -ErrorAction "SilentlyContinue"
 .\all-summary-csv.ps1 -Start $Start -End $End
 .\summary-for-each-workspace.ps1 -Start $Start -End $End
-if(-not (test-path venv)) {
+if (-not (test-path venv)) {
     python3 -m venv venv
     .\venv\Scripts\Activate.ps1
     pip install -r requirements.txt
