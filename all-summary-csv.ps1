@@ -1,7 +1,6 @@
 ﻿#https://clockify.me/developers-api
 #https://clockify.me/developers-api#tag-Workspace
 #https://clockify.me/developers-api#tag-Reports
-#TODO https://stackoverflow.com/a/62617490 hash tables encoding problem switch to golang on python
 param(
   [string] $Start,
   [string] $End,
@@ -21,8 +20,12 @@ else {
 }
 $workspacesJson = curl -s -H "X-Api-Key: $Token" "https://api.clockify.me/api/v1/workspaces"
 $wpId = @{}; foreach ($i in ($workspacesJson | ConvertFrom-Json)) { $wpId[$i.Name] = $i.ID }
-$jsonstring = '{"dateRangeStart": "' + $Start + 'T00:00:00.000Z", "dateRangeEnd": "' + $End + 'T23:59:59.000Z", "summaryFilter": { "groups": [ "PROJECT"]}, "exportType": "CSV"}'
-
+$jsonstring = @{
+  "dateRangeStart" = $Start + 'T00:00:00.000Z'
+  "dateRangeEnd" = $End + 'T23:59:59.000Z'
+  "summaryFilter" = @{ "groups" = @( "PROJECT")}
+  "exportType" = "CSV"
+} | ConvertTo-Json
 function get-report () {
   param([string] $ws)
   return $(curl -X POST -s -H "X-Api-Key: $token" -H "Content-Type: application/json" "https://reports.api.clockify.me/v1/workspaces/$ws/reports/summary" -d $jsonstring)

@@ -1,7 +1,20 @@
 ﻿#https://clockify.me/developers-api
-#https://clockify.me/developers-api#tag-Workspace
-#https://clockify.me/developers-api#tag-Reports
-#TODO https://stackoverflow.com/a/62617490 hash tables encoding problem switch to golang on python
+<#
+    .SYNOPSIS
+      Adds a new project to Clockify workspace.
+    .DESCRIPTION
+      
+    .EXAMPLE
+     ./add-Project.ps1 -NameOfWorkspace 'Bar' -NewProjectName 'Foo' -ClientName 'Lol sro.'
+    .PARAMETER $NewProjectName
+      The name of the new project.
+    .PARAMETER $ClientName
+      The name of the client.
+    .PARAMETER $NameOfWorkspace
+      The name of the workspace, for new project.
+    .PARAMETER $Token
+      Authentification token if there is no .config file.
+#>
 param(
   [Parameter(Mandatory = $true)]
   [string] $NewProjectName,
@@ -12,11 +25,6 @@ param(
   [string] $Token
 )
 $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
-if ($Help) {
-  # TODO switch param
-  "Usage:`n`t{0}  -NameOfWorkspace 'Bar' -NewProjectName 'Foo' -ClientName 'Lol sro.' " -f $MyInvocation.MyCommand.Name
-  exit 0
-}
 if ((-not $Token) -and (Test-Path -Path ".config")) {
   $Token = Get-Content -Path ".config"
 }
@@ -32,14 +40,19 @@ function create-project () {
     [string] $ws,
     [string] $clientId
   )
-  $jsonstring = '{"name": "' + $NewProjectName + '", "isPublic": "false" , "clientId": "' + $clientId + '"}"' #TODO parce id
+  #TODO parce id
+  $jsonstring = @{
+    "name"     = $NewProjectName
+    "isPublic" = "false"
+    "clientId" = $clientId
+  } | ConvertTo-Json
   curl -X POST -s -H "X-Api-Key: $token" -H "Content-Type: application/json" "https://api.clockify.me/api/v1/workspaces/$ws/projects" -d $jsonstring
 }
 function main {
   foreach ($ws in $wpId.GetEnumerator()) { 
     if ($ws.Name -eq $NameOfWorkspace) {
       $clientId = curl -s -H "X-Api-Key: $Token" "https://api.clockify.me/api/v1/workspaces/$($ws.Value)/clients" `
-        | ConvertFrom-Json | ForEach-Object { if ($_.name -eq $ClientName) { $_.id } }
+      | ConvertFrom-Json | ForEach-Object { if ($_.name -eq $ClientName) { $_.id } }
       create-project -ws $ws.Value -clientId $clientId | Out-Null
 
 
