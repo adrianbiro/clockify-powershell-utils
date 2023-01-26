@@ -23,7 +23,7 @@ for f in files:
         for s in sheets:
             df = excel.parse(s)
             name, *_ = re.split(r"\d{4}\-\d{2}\-\d{2}", f)
-            df_name = name
+            df_name = name[:30]  # truncate name of sheet
             df_dict[df_name] = df
 
 with pd.ExcelWriter(outputreportname) as writer:

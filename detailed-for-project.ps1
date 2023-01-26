@@ -28,7 +28,7 @@ $jsonstring = @{
     "dateRangeEnd"   = $End + 'T23:59:59.000Z'
     "detailedFilter" = @{
         "page"       = 1
-        "pageSize"   = 50
+        "pageSize"   = 1000 
         "exportType" = "JSON"
     }
 } | ConvertTo-Json
@@ -46,6 +46,7 @@ function make-report {
         [string] $projectName,
         [string] $userName,
         [string] $description,
+        [string] $wsname,
         $timeInterval
     )
     if (-not $projectName) {$projectName = "No project"}
@@ -53,12 +54,12 @@ function make-report {
     New-Item -Path $reportPath -ErrorAction "SilentlyContinue" | Out-Null
     # Make header
     if (-not (Get-Content $reportPath -ErrorAction "SilentlyContinue").Count) { 
-        '"Name","Description","From","To","Hours","Duration in seconds"'
+        '"Name","Department","Description","From","To","Hours","Duration in seconds"'
       | Add-Content -Encoding utf8BOM -Path $reportPath 
     }
   
-    "`"{0}`",`"{1}`",`"{2}`",`"{3}`",`"{4}`",`"{5}`"" `
-        -f $userName, $description, $timeInterval.start, $timeInterval.end, 
+    "`"{0}`",`"{1}`",`"{2}`",`"{3}`",`"{4}`",`"{5}`",`"{5}`"" `
+        -f $userName, $wsname, $description, $timeInterval.start, $timeInterval.end, 
             (seconds-to-hours -num $timeInterval.duration), $timeInterval.duration  | Add-Content -Encoding utf8BOM -Path $reportPath
 }
 function main {
@@ -67,7 +68,7 @@ function main {
         #$projectID = @{}; foreach ($i in ($allProjectJson | ConvertFrom-Json)) { $projectID[$i.Name] = $i.ID }
         foreach ($i in ($allProjectJson | ConvertFrom-Json)) {
             $i.timeentries | ForEach-Object {
-                make-report -projectName $_.projectName -userName $_.userName `
+                make-report -projectName $_.projectName -userName $_.userName -wsname $ws.Name `
                     -description $_.description -timeInterval $_.timeInterval
             }
         }
