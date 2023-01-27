@@ -13,4 +13,5 @@ foreach($i in Get-Content -Path $file) {
         continue
     }
     .\add-Project.ps1 -NewProjectName $i -ClientName $ClientName -NameOfWorkspace $NameOfWorkspace
+    Start-Sleep -Second 0.1
 }

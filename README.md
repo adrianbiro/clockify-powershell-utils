@@ -1,7 +1,13 @@
 # Make report from clockify
-tldr
+put token to `.config` file in `clockify` directory
+# Run all
 ```pwsh
-PS C:\clockify> .\run.ps1 -Start '2023-01-01' -End '2023-01-15'
+PS C:\clockify> .\makeall.ps1 -Start '2023-01-01' -End '2023-01-15'
+```
+
+# old
+```pwsh
+PS C:\clockify> .\runsummary-of-all-workspaces.ps1 -Start '2023-01-01' -End '2023-01-15'
 ```
 or
 ```pwsh

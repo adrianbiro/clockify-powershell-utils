@@ -39,7 +39,7 @@ function get-report () {
 
 function seconds-to-hours {
     Param([double] $num)
-    return $num / 3600
+    return ("{0:hh\:mm\:ss}" -f [timespan]::fromseconds($num)) 
 }
 function make-report {
     Param(
@@ -58,9 +58,9 @@ function make-report {
       | Add-Content -Encoding utf8BOM -Path $reportPath 
     }
   
-    "`"{0}`",`"{1}`",`"{2}`",`"{3}`",`"{4}`",`"{5}`",`"{5}`"" `
+    "`"{0}`",`"{1}`",`"{2}`",`"{3}`",`"{4}`",`"{5}`",`"{6}`"" `
         -f $userName, $wsname, $description, $timeInterval.start, $timeInterval.end, 
-            (seconds-to-hours -num $timeInterval.duration), $timeInterval.duration  | Add-Content -Encoding utf8BOM -Path $reportPath
+            $(seconds-to-hours -num $timeInterval.duration), $timeInterval.duration  | Add-Content -Encoding utf8BOM -Path $reportPath
 }
 function main {
     foreach ($ws in $wpId.GetEnumerator()) { 

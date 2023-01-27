@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [string] $start,
+    [string] $Start,
     [Parameter(Mandatory = $true)]
     [string] $End
 )
