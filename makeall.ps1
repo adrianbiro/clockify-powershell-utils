@@ -5,7 +5,7 @@ param(
     [string] $End
 )
 # set last week as default
-if ((-not $Start) -and (-not $End)) {
+if (-not $Start -and -not $End) {
     $days = @{ "Monday" = 0
         "Tuesday"       = 1
         "Wednesday"     = 2 
@@ -20,7 +20,7 @@ if ((-not $Start) -and (-not $End)) {
     $Start = get-date -Date ($MondayLastWeek) -Format 'yyyy-MM-dd'
     $End = get-date -Date ($SundayLastWeek) -Format 'yyyy-MM-dd'
 }
-else {
+elseif (-not $Start -or -not $End) {
     "Usage:`n`t{0}  -Start '2023-01-01' -End '2023-01-15'" -f $MyInvocation.MyCommand.Name
     exit 1
 }
