@@ -1,40 +1,13 @@
 # Make report from clockify
-put token to `.config` file in `clockify` directory
-# Run all
+* install dependencies
+  * `pip3 install -r requirements.txt`   
+  * put token to `.config` file in `clockify` directory
+  * Powershell version 7 plus **not** 5.1
+* Run `Make-All-Reports.ps1` to produce all reports.
+    
 ```pwsh
-PS C:\clockify> .\makeall.ps1 -Start '2023-01-01' -End '2023-01-15'
+PS C:\clockify> .\Make-All-Reports.ps1 -Start '2023-01-01' -End '2023-01-15'
+# Or whitout arguments and default is last week
+PS C:\clockify> .\Make-All-Reports.ps1
 ```
 
-# old
-```pwsh
-PS C:\clockify> .\runsummary-of-all-workspaces.ps1 -Start '2023-01-01' -End '2023-01-15'
-```
-or
-```pwsh
-PS C:\clockify> .\all-summary-csv.ps1 -Start '2023-01-01' -End '2023-01-15'
-PS C:\clockify> .\summary-for-each-workspace.ps1 -Start '2023-01-01' -End '2023-01-15'
-(venv) PS C:\clockify> pip install -r requirements.txt
-(venv) PS C:\clockify> cd .\reports\
-(venv) PS C:\clockify\reports> python ..\multiple2one.py
-```
-final report is in `reports\2023-01-01_2023-01-15.xlsx`
-
-## Excel stuff
-decimal time to hours: `=TEXT(SUM(C2:C56)/24,"[h]:mm:ss")` or `=TEXT(SUM(OFFSET($C$2,0,0,COUNTA(C:C),1))/24,"[h]:mm:ss")`
-
-# Make detailed report for each project from all workspaces
-```pwsh
-PS C:\clockify> ./detailed-for-project.ps1  -Start '2023-01-01' -End '2023-01-15'
-```
-
-# Change client name in all workspaces
-```pwsh
-PS C:\clockify> .\change-client-name-in-all-ws.ps1 -NewClientName 'Office&Facility Management' -ClientName 'Office Management'
-```
-
-# Add Project to workspace
-```pwsh
-PS C:\clockify> ./add-Project.ps1 -NameOfWorkspace 'Bar' -NewProjectName 'Foo' -ClientName 'Lol sro.'
-# or
-PS C:\clockify> ./add-Projects-in-bulk.ps1 -NameOfWorkspace 'Bar' -File 'Foo.txt' -ClientName 'Lol sro.'
-```
