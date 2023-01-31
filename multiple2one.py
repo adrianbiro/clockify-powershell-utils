@@ -1,9 +1,18 @@
+import argparse
 import pandas as pd
 import os
 import re
-import pathlib
 
-url = os.path.abspath("")
+startLocation = os.path.abspath("")
+
+parser = argparse.ArgumentParser()
+parser.add_argument('reportLocation',
+                    help='Path to reports',
+                    type=str)
+args = parser.parse_args()
+reportLocation = args.reportLocation
+
+os.chdir(reportLocation)
 
 files = os.listdir(os.path.abspath(""))
 outputreportname = ""
@@ -11,7 +20,8 @@ df_dict = {}
 for f in files:
     if f.endswith(".csv"):
         outputreportname = (
-            re.search(r"(.*)(\d{4}\-\d{2}\-\d{2}_\d{4}\-\d{2}\-\d{2})(.*)", f).group(2)
+            re.search(
+                r"(.*)(\d{4}\-\d{2}\-\d{2}_\d{4}\-\d{2}\-\d{2})(.*)", f).group(2)
             + ".xlsx"
         )
         read_file = pd.read_csv(f)
@@ -29,3 +39,5 @@ for f in files:
 with pd.ExcelWriter(outputreportname) as writer:
     for k in df_dict.keys():
         df_dict[k].to_excel(writer, sheet_name=k, index=False)
+
+os.chdir(startLocation)
