@@ -24,7 +24,7 @@ elseif (-not $Start -or -not $End) {
 }
 
 ### Clean old reports.
-remove-Item ".\reports\", ".\projectreports\", "IRreports" -Recurse -Force -ErrorAction "SilentlyContinue" | Out-Null
+remove-Item ".\reports\", ".\projectreports\", "IRreports", "finance" -Recurse -Force -ErrorAction "SilentlyContinue" | Out-Null
 
 ### Generate reports
 # Detailed for each project, persoon, task name etc.
@@ -32,11 +32,15 @@ remove-Item ".\reports\", ".\projectreports\", "IRreports" -Recurse -Force -Erro
 # this one must go firts
 .\all-summary-csv.ps1 -Start $Start -End $End | Out-Null
 # make aggregation of previous step
-.\summary-for-each-workspace.ps1 -Start $Start -End $End | Out-Null
+.\project-per-workspace.ps1 -Start $Start -End $End | Out-Null
 # IRreport
 .\IR-summary-csv.ps1 -Start $Start -End $End | Out-Null
-# put all to one xlsx file 
-$locations = "IRreports", "reports", "projectreports"
+# finance
+.\finance-percent-per-person.ps1 -Start $Start -End $End | Out-Null
+
+
+## put all to one xlsx file 
+$locations = "IRreports", "reports", "projectreports", "finance"
 foreach ($i in $locations) {
     python multiple2one.py $i 
 }
@@ -47,12 +51,13 @@ Remove-Item -Recurse -Force -ErrorAction "SilentlyContinue" -Path $pathToReports
 mkdir $pathToReports -ErrorAction "SilentlyContinue" | Out-Null
 $FinalReports = @{
     "projectreports" = ("Projects Detailed {0}_{1}.xlsx" -f $Start, $End)
-    "reports" = ("Summary {0}_{1}.xlsx" -f $Start, $End)
-    "IRreports" = ("IR report {0}_{1}.xlsx" -f $Start, $End)
+    "reports"        = ("Summary {0}_{1}.xlsx" -f $Start, $End)
+    "IRreports"      = ("IR report {0}_{1}.xlsx" -f $Start, $End)
+    "finance"        = ("Finance {0}_{1}.xlsx" -f $Start, $End)
 }
-foreach($i in $FinalReports.GetEnumerator()){
+foreach ($i in $FinalReports.GetEnumerator()) {
     Copy-Item -Path (Join-Path -Path $I.Name -ChildPath ("{0}_{1}.xlsx" -f $Start, $End)) `
-    -Destination (Join-Path -Path $pathToReports -ChildPath $i.Value)
+        -Destination (Join-Path -Path $pathToReports -ChildPath $i.Value)
 }
 
 Write-Host ("Reports are in {0}" -f $pathToReports)

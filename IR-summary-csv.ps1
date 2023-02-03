@@ -43,7 +43,7 @@ function main {
   $Myobj = foreach ($i in $AllReports.GetEnumerator()) {
     $i.Value | ConvertFrom-Csv | Select-Object "User", "Time (h)", "Time (decimal)" 
   }
-  $Myobj |  ConvertTo-Csv | Add-Content -Encoding utf8BOM -Path $reportPath
+  $Myobj | ConvertTo-Csv | Add-Content -Encoding utf8BOM -Path $reportPath
   
 }
 main
