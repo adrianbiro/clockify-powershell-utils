@@ -1,3 +1,6 @@
+#https://clockify.me/developers-api
+#https://clockify.me/developers-api#tag-Workspace
+#https://clockify.me/developers-api#tag-Reports
 param(
     [string] $Start,
     [string] $End,
@@ -8,58 +11,33 @@ if ((-not $Start) -or (-not $End)) {
     "Usage:`n`t{0}  -Start '2023-01-01' -End '2023-01-15'" -f $MyInvocation.MyCommand.Name
     exit 1
 }
-function sum-project-per-person {
-    Param(
-        [string] $csvfile,
-        [string] $ProjectName
-    )
-    [hashtable]$sum = @{};
-    [hashtable]$personInfo = @{}; 
-    Get-Content -Path $csvfile `
-    | ConvertFrom-Csv | Foreach-Object {
-        [double] $num = $_."Duration in seconds" #TODO Department
-        if ($sum[$_.Name]) {
-            $sum[$_.Name] += $num
-        }
-        else {
-            $sum[$_.Name] = $num
-        }
-        
-        $personInfo["Email"] = $_.Email
-        $personInfo["Department"] = $_.Department
-        $personInfo["ProjectName"] = $ProjectName
-        $personInfo["Person"] = $_.Name
-    }
-    return $sum, $personInfo
+if ((-not $Token) -and (Test-Path -Path ".config")) {
+    $Token = Get-Content -Path ".config"
 }
+else {
+    "Specify token with -Token 'token_string'"
+    exit 1
+}
+$workspacesJson = curl -s -H "X-Api-Key: $Token" "https://api.clockify.me/api/v1/workspaces"
+$wpId = @{}; foreach ($i in ($workspacesJson | ConvertFrom-Json)) { $wpId[$i.Name] = $i.ID }
+$jsonstring = @{
+    "dateRangeStart" = $Start + 'T00:00:00.000Z'
+    "dateRangeEnd"   = $End + 'T23:59:59.000Z'
+    "summaryFilter"  = @{ "groups" = @( "USER", "PROJECT") }
+    "exportType"     = "CSV"
+} | ConvertTo-Json
+
 function main {
     $pathToReports = "finance"
     Remove-Item -Recurse -Force -ErrorAction "SilentlyContinue" -Path $pathToReports | Out-Null 
     mkdir $pathToReports -ErrorAction "SilentlyContinue" | Out-Null
-    [hashtable] $PersonProject = @{};
-    foreach ($name in (Get-ChildItem "projectreports" -Filter "*csv")) {
-        $ProjectName = (Split-Path $name -Leaf) -split "\s\d{4}-\d{2}-\d{2}_.*\.csv"
-        [hashtable]$sum, [hashtable]$personInfo = (sum-project-per-person -ProjectName $ProjectName  -csvfile $name)
-        foreach ($data in $sum.GetEnumerator()) {
-            $PersonProject[$data.Name] += @{"$ProjectName" = $data.Value } 
-        }
+    foreach ($ws in $wpId.GetEnumerator()) {
+        $reportPath = Join-Path -Path $pathToReports -ChildPath ("{0} {1}_{2}.csv" -f $ws.Name, $Start, $End)
+        $out = (curl -X POST -s -H "X-Api-Key: $token" -H "Content-Type: application/json" `
+            "https://reports.api.clockify.me/v1/workspaces/$($ws.Value)/reports/summary" -d $jsonstring)
+        $out | Add-Content -Encoding utf8BOM -Path $reportPath 
+
     }
-    foreach ($i in $PersonProject.GetEnumerator()) {
-        $reportPath = Join-Path -Path $pathToReports -ChildPath ("{0} {1}_{2}.csv" -f $i.Name, $Start, $End)
-        $i.Value | ConvertTo-Csv | Add-Content -Encoding utf8BOM -Path $reportPath
-        #TODO percent ratio (part / total) * 100 add to nex row in CSV
-        # use api report 
-        [Double]$PersonTotal
-        foreach ($line in $i.Value | ConvertFrom-Csv) { 
-            $properties = $line | Get-Member -MemberType Properties
-            for ($j = 0; $j -lt $properties.Count; $j++) {
-                $column = $properties[$j]
-                $columnvalue = $line | Select-Object -ExpandProperty $column.Name
-                $columnvalue
-                # doSomething $column.Name $columnvalue 
-                # doSomething $i $columnvalue 
-            }
-        } 
-    }
+    
 }
 main
