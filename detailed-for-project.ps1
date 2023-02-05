@@ -24,8 +24,9 @@ mkdir $pathToReports -ErrorAction "SilentlyContinue" | Out-Null
 $workspacesJson = curl -s -H "X-Api-Key: $Token" "https://api.clockify.me/api/v1/workspaces"
 $wpId = @{}; foreach ($i in ($workspacesJson | ConvertFrom-Json)) { $wpId[$i.Name] = $i.ID }
 $jsonstring = @{
-    "dateRangeStart" = $Start + 'T00:00:00.000Z'
-    "dateRangeEnd"   = $End + 'T23:59:59.000Z'
+    #2023-01-31T22:59:59.000Z
+    "dateRangeStart" = (Get-Date (Get-Date $Start).ToUniversalTime() -UFormat '+%Y-%m-%dT%H:%M:%S.000Z')
+    "dateRangeEnd"   = (Get-Date (Get-Date ("{0} 23:59:59" -f $End)).ToUniversalTime() -UFormat '+%Y-%m-%dT%H:%M:%S.000Z')
     "detailedFilter" = @{
         "page"       = 1
         "pageSize"   = 1000 

@@ -1,6 +1,3 @@
-#https://clockify.me/developers-api
-#https://clockify.me/developers-api#tag-Workspace
-#https://clockify.me/developers-api#tag-Reports
 param(
     [string] $Start,
     [string] $End,
@@ -21,8 +18,9 @@ else {
 $workspacesJson = curl -s -H "X-Api-Key: $Token" "https://api.clockify.me/api/v1/workspaces"
 $wpId = @{}; foreach ($i in ($workspacesJson | ConvertFrom-Json)) { $wpId[$i.Name] = $i.ID }
 $jsonstring = @{
-    "dateRangeStart" = $Start + 'T00:00:00.000Z'
-    "dateRangeEnd"   = $End + 'T23:59:59.000Z'
+    #2023-01-31T22:59:59.000Z
+    "dateRangeStart" = (Get-Date (Get-Date $Start).ToUniversalTime() -UFormat '+%Y-%m-%dT%H:%M:%S.000Z')
+    "dateRangeEnd"   = (Get-Date (Get-Date ("{0} 23:59:59" -f $End)).ToUniversalTime() -UFormat '+%Y-%m-%dT%H:%M:%S.000Z')
     "summaryFilter"  = @{ "groups" = @( "USER", "PROJECT") }
     "exportType"     = "CSV"
 } | ConvertTo-Json
