@@ -40,7 +40,7 @@ remove-Item ".\reports\", ".\projectreports\", "IRreports", "finance" -Recurse -
 
 
 ## put all to one xlsx file 
-$locations = "IRreports", "reports", "projectreports", "finance"
+$locations = @("IRreports", "reports", "projectreports", "finance")
 foreach ($i in $locations) {
     python multiple2one.py $i 
 }

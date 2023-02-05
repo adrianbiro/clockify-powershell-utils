@@ -33,9 +33,27 @@ function main {
     mkdir $pathToReports -ErrorAction "SilentlyContinue" | Out-Null
     foreach ($ws in $wpId.GetEnumerator()) {
         $reportPath = Join-Path -Path $pathToReports -ChildPath ("{0} {1}_{2}.csv" -f $ws.Name, $Start, $End)
+        if (-not (Get-Content $reportPath -ErrorAction "SilentlyContinue").Count) { 
+            '"User","Project","Time (h)","Time (decimal)","Percent"'
+          | Add-Content -Encoding utf8BOM -Path $reportPath 
+        }
         $out = (curl -X POST -s -H "X-Api-Key: $token" -H "Content-Type: application/json" `
-            "https://reports.api.clockify.me/v1/workspaces/$($ws.Value)/reports/summary" -d $jsonstring)
-        $out | Add-Content -Encoding utf8BOM -Path $reportPath 
+                "https://reports.api.clockify.me/v1/workspaces/$($ws.Value)/reports/summary" -d $jsonstring)
+        #$out | Add-Content -Encoding utf8BOM -Path $reportPath
+        [hashtable] $sum = @{}
+        $out | ConvertFrom-Csv | Foreach-Object {
+            [double] $num = $_."Time (decimal)"
+            if ($sum[$_.User]) {
+                $sum[$_.User] += $num
+            }
+            else {
+                $sum[$_.User] = $num
+            }
+        }
+        $out | ConvertFrom-Csv | Foreach-Object {
+            "`"{0}`",`"{1}`",`"{2}`",`"{3}`",`"{4}`"" `
+                -f $_.User, $_.Project, $_."Time (h)", $_."Time (decimal)", $(($_."Time (decimal)" / $sum[$_.User]) * 100) | Add-Content -Encoding utf8BOM -Path $reportPath  
+        }
 
     }
     
