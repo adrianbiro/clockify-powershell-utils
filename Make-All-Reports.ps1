@@ -55,10 +55,16 @@ $FinalReports = @{
     "IRreports"      = ("IR report {0}_{1}.xlsx" -f $Start, $End)
     "finance"        = ("Finance {0}_{1}.xlsx" -f $Start, $End)
 }
+
 foreach ($i in $FinalReports.GetEnumerator()) {
     Copy-Item -Path (Join-Path -Path $I.Name -ChildPath ("{0}_{1}.xlsx" -f $Start, $End)) `
         -Destination (Join-Path -Path $pathToReports -ChildPath $i.Value)
 }
+#remove csv and duplicites 
+#Copy-Item -Path "projectre"
+#remove-Item (Join-Path -Path $pathToReports -ChildPath "*.csv"), `
+#(Join-Path -Path $pathToReports -ChildPath ("{0}_{1}.xlsx" -f $Start, $End)) `
+#    -Recurse -Force -ErrorAction "SilentlyContinue" | Out-Null
 
 Write-Host ("Reports are in {0}" -f $pathToReports)
 
