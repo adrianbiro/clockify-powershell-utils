@@ -37,10 +37,12 @@ remove-Item ".\reports\", ".\projectreports\", "IRreports", "finance" -Recurse -
 .\IR-summary-csv.ps1 -Start $Start -End $End | Out-Null
 # finance
 .\finance-percent-per-person.ps1 -Start $Start -End $End | Out-Null
+# finance person
+.\finance-just-person.ps1 -Start $Start -End $End | Out-Null
 
 
 ## put all to one xlsx file 
-$locations = @("IRreports", "reports", "projectreports", "finance")
+$locations = @("IRreports", "reports", "projectreports", "finance", (Join-Path -Path "finance" -ChildPath "person"))
 foreach ($i in $locations) {
     python multiple2one.py $i 
 }
@@ -54,6 +56,7 @@ $FinalReports = @{
     "reports"        = ("Summary {0}_{1}.xlsx" -f $Start, $End)
     "IRreports"      = ("IR report {0}_{1}.xlsx" -f $Start, $End)
     "finance"        = ("Finance {0}_{1}.xlsx" -f $Start, $End)
+    (Join-Path -Path "finance" -ChildPath "person") = ("Finance person {0}_{1}.xlsx" -f $Start, $End)
 }
 
 foreach ($i in $FinalReports.GetEnumerator()) {
